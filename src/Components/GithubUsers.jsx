@@ -8,6 +8,7 @@ export class GithubUsers extends Component {
 
     this.state = {
       username: "",
+      activePage: 1
     };
   }
   handleChange = (e) => {
@@ -22,9 +23,28 @@ export class GithubUsers extends Component {
     await getGithubUser(payload);
   };
 
+  handlePagination = (pageNumber) => {
+    this.setState({
+      activePage:Number(pageNumber)
+    })
+  }
+
   render() {
     const { githubUsers } = this.props;
-
+    let totalPages = null;
+    let low = null;
+    let high = null;
+    let pages = null;
+    let pageData = null;
+    if(githubUsers) {
+      totalPages = Math.ceil(githubUsers.length / 10)
+      pages = new Array(totalPages).fill("page")
+      low = (this.state.activePage - 1) * 10
+      high = (this.state.activePage) * 10
+      pageData = githubUsers.slice(low, high)
+    }
+     
+    
     return (
       <div>
         <input
@@ -38,7 +58,7 @@ export class GithubUsers extends Component {
           Search
         </button>
 
-        {githubUsers.map((item) => (
+        {pageData.map((item) => (
           <div
             className="shadow-lg"
             style={{
@@ -53,7 +73,7 @@ export class GithubUsers extends Component {
             <div style={{ float: "left" }}>
               <img
                 src={item.avatar_url}
-                alt="image"
+                alt="profile"
                 style={{
                   height: 100,
                   width: 100,
@@ -74,6 +94,16 @@ export class GithubUsers extends Component {
             </div>
           </div>
         ))}
+        <div style = {{"margin":"auto","textAlign":"center"}}>
+          {pages && pages.length ? 
+          pages.map((page, index) => {
+            return (
+              <span>
+                <button onClick={()=>this.handlePagination(index + 1)}>{index + 1}</button>
+              </span>
+            )
+          }):null}
+        </div>
       </div>
     );
   }

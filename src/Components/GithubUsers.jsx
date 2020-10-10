@@ -8,7 +8,8 @@ export class GithubUsers extends Component {
 
     this.state = {
       username: "",
-      activePage: 1
+      activePage: 1,
+      itemsPerPage:3
     };
   }
   handleChange = (e) => {
@@ -16,6 +17,12 @@ export class GithubUsers extends Component {
       username: e.target.value,
     });
   };
+
+  handleItemsPerPage = (e) => {
+    this.setState({
+      itemsPerPage:e.target.value
+    })
+  }
 
   handleSubmit = async () => {
     const { getGithubUser } = this.props;
@@ -37,14 +44,14 @@ export class GithubUsers extends Component {
     let pages = null;
     let pageData = null;
     if(githubUsers) {
-      totalPages = Math.ceil(githubUsers.length / 10)
+      totalPages = Math.ceil(githubUsers.length / this.state.itemsPerPage)
       pages = new Array(totalPages).fill("page")
-      low = (this.state.activePage - 1) * 10
-      high = (this.state.activePage) * 10
+      low = (this.state.activePage - 1) * this.state.itemsPerPage
+      high = (this.state.activePage) * this.state.itemsPerPage
       pageData = githubUsers.slice(low, high)
     }
      
-    
+    console.log(githubUsers)
     return (
       <div>
         <input
@@ -57,6 +64,13 @@ export class GithubUsers extends Component {
         <button className="btn bg-info text-white" onClick={this.handleSubmit}>
           Search
         </button>
+
+        <div>
+          <select name="itemsPerPage" onChange={(e)=>this.handleItemsPerPage(e)}>
+            <option value = {5}>5</option>
+            <option value = {10}>10</option>
+          </select>
+        </div>
 
         {pageData.map((item) => (
           <div
@@ -99,7 +113,9 @@ export class GithubUsers extends Component {
           pages.map((page, index) => {
             return (
               <span>
-                <button onClick={()=>this.handlePagination(index + 1)}>{index + 1}</button>
+                <button 
+                style = {(index + 1) === this.state.activePage ? {"backgroundColor":"green"} : null}
+                onClick={()=>this.handlePagination(index + 1)}>{index + 1}</button>
               </span>
             )
           }):null}
@@ -118,3 +134,4 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(GithubUsers);
+
